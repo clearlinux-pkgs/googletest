@@ -4,7 +4,7 @@
 #
 Name     : googletest
 Version  : 1.8.1
-Release  : 10
+Release  : 11
 URL      : https://github.com/google/googletest/archive/release-1.8.1.tar.gz
 Source0  : https://github.com/google/googletest/archive/release-1.8.1.tar.gz
 Summary  : GoogleTest (with main() function)
@@ -26,6 +26,7 @@ Summary: dev components for the googletest package.
 Group: Development
 Requires: googletest-lib = %{version}-%{release}
 Provides: googletest-devel = %{version}-%{release}
+Requires: googletest = %{version}-%{release}
 
 %description dev
 dev components for the googletest package.
@@ -50,35 +51,41 @@ license components for the googletest package.
 
 %prep
 %setup -q -n googletest-release-1.8.1
+cd %{_builddir}/googletest-release-1.8.1
 %patch1 -p1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
-export LANG=C
-export SOURCE_DATE_EPOCH=1538726039
+export LANG=C.UTF-8
+export SOURCE_DATE_EPOCH=1604620983
 mkdir -p clr-build
 pushd clr-build
+export GCC_IGNORE_WERROR=1
+export CFLAGS="$CFLAGS -fno-lto "
+export FCFLAGS="$FFLAGS -fno-lto "
+export FFLAGS="$FFLAGS -fno-lto "
+export CXXFLAGS="$CXXFLAGS -fno-lto "
 %cmake .. -DBUILD_GMOCK=1 -DGTEST_CREATE_SHARED_LIBRARY=1 -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -Dgtest_build_samples=ON
 make  %{?_smp_mflags}
 popd
 
 %check
-export LANG=C
+export LANG=C.UTF-8
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 cd clr-build; make test
 
 %install
-export SOURCE_DATE_EPOCH=1538726039
+export SOURCE_DATE_EPOCH=1604620983
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/googletest
-cp LICENSE %{buildroot}/usr/share/package-licenses/googletest/LICENSE
-cp googlemock/LICENSE %{buildroot}/usr/share/package-licenses/googletest/googlemock_LICENSE
-cp googlemock/scripts/generator/LICENSE %{buildroot}/usr/share/package-licenses/googletest/googlemock_scripts_generator_LICENSE
-cp googletest/LICENSE %{buildroot}/usr/share/package-licenses/googletest/googletest_LICENSE
+cp %{_builddir}/googletest-release-1.8.1/LICENSE %{buildroot}/usr/share/package-licenses/googletest/5a2314153eadadc69258a9429104cd11804ea304
+cp %{_builddir}/googletest-release-1.8.1/googlemock/LICENSE %{buildroot}/usr/share/package-licenses/googletest/5a2314153eadadc69258a9429104cd11804ea304
+cp %{_builddir}/googletest-release-1.8.1/googlemock/scripts/generator/LICENSE %{buildroot}/usr/share/package-licenses/googletest/1d4719e04eaa4909ab5a59ef5cb04d2a5517716e
+cp %{_builddir}/googletest-release-1.8.1/googletest/LICENSE %{buildroot}/usr/share/package-licenses/googletest/5a2314153eadadc69258a9429104cd11804ea304
 pushd clr-build
 %make_install
 popd
@@ -163,7 +170,5 @@ popd
 
 %files license
 %defattr(0644,root,root,0755)
-/usr/share/package-licenses/googletest/LICENSE
-/usr/share/package-licenses/googletest/googlemock_LICENSE
-/usr/share/package-licenses/googletest/googlemock_scripts_generator_LICENSE
-/usr/share/package-licenses/googletest/googletest_LICENSE
+/usr/share/package-licenses/googletest/1d4719e04eaa4909ab5a59ef5cb04d2a5517716e
+/usr/share/package-licenses/googletest/5a2314153eadadc69258a9429104cd11804ea304
